@@ -1,0 +1,24 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+#/backend/config/visualization-8f7a2-firebase-adminsdk-u66rx-6414c75176.json
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
