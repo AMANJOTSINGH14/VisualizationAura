@@ -49,7 +49,7 @@ export const createCard = async (data: any) => {
 export const updateCard = async (id: string, data: any) => {
     const headers = await authHeader();
     if(headers==null) return null;
-
+    console.log(data)
     return axios.put(`${API_URL}/${id}`, data, { headers });
 };
 

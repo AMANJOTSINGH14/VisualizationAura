@@ -535,17 +535,19 @@ const CList: React.FC<CListProps> = ({
 
   const onDragEnd = (result: any) => {
     const { source, destination, draggableId } = result;
-
+     console.log(internalCards)
     if (!destination) return;
-
+  
     if (
       source.droppableId === "tagList" &&
       destination.droppableId.startsWith("card-")
     ) {
-      const cardId = destination.droppableId.split("-")[1];
-      const draggedTag = tag.find((tag) => tag.id === draggableId);
+      const cardId = destination.droppableId.slice(5);
 
+      const draggedTag = tag.find((t) => t.id === draggableId);
+      console.log(cardId,destination)
       if (draggedTag) {
+        // Update local state for immediate UI
         setInternalCards((prevCards) =>
           prevCards.map((card) =>
             card._id === cardId
@@ -558,10 +560,13 @@ const CList: React.FC<CListProps> = ({
               : card
           )
         );
+        console.log(cardId)
+        // **Call parent's onTagDrop** to do the actual saving
+        onTagDrop(cardId, draggedTag.name);
       }
     }
   };
-
+  
   const sanitizeUrl = (url: string) => {
     if (!/^https?:\/\//i.test(url)) {
       return `http://${url}`;

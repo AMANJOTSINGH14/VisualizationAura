@@ -144,15 +144,16 @@ const Canvas = () => {
     text: string;
     imageUrl?: string;
     caption?: string;
+    tags?: string[];
   }) => {
-    console.log("nkkn",editingCardId,cards)
     if (editingCardId) {
       const updatedCard = {
-        ...cards.find((card) => card.id === editingCardId),
+        ...cards.find((card) => card._id === editingCardId),
         subject: data.subject,
         text: data.text,
         imageUrl: data.imageUrl,
         caption: data.caption || '',
+        tags:data.tags ??[]
       };
       
       await dispatch(editCard({ id: editingCardId, data: updatedCard}));
@@ -178,18 +179,25 @@ const Canvas = () => {
   };
 
 
-  const handleTagDrop = (cardId: string, tagName: string) => {
-    // setCards((prevCards) =>
-    //   prevCards.map((card) =>
-    //     card.id === cardId
-    //       ? {
-    //           ...card,
-    //           tags: Array.from(new Set([...(card.tags || []), tagName])),
-    //         }
-    //       : card
-    //   )
-    // );
+  const handleTagDrop = async (cardId: string, tagName: string) => {
+    const existingCard = cards.find((card) => card._id === cardId);
+    setEditingCardId(cardId); 
+    if (!existingCard) return;
+    
+    const newTags = Array.from(new Set([...(existingCard.tags || []), tagName]));
+    console.log(newTags);
+    console.log(existingCard);
+    
+    const updatedCard = {
+      ...existingCard,
+      tags: newTags,
+    };
+    
+    console.log(updatedCard, cardId, "handletag");
+    await dispatch(editCard({ id: cardId, data: updatedCard }));
+    dispatch(getAllCards())
   };
+  
   const handleDuplicate = async(cardId: string) => {
     // setCards((prevCards) => {
     //   const cardToDuplicate = prevCards.find((card) => card.id === cardId);
@@ -211,29 +219,23 @@ const Canvas = () => {
     //   localStorage.setItem('cards', JSON.stringify(updatedCards));
     //   return updatedCards;
     // });
-    console.log(cardId)
    await dispatch(removeCard(cardId));
    dispatch(getAllCards())
   };
   
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    console.log(event.target.files)
-    console.log('File:', file);
     if (file) {
       Papa.parse(file, {
         header: true,
         complete: (results: any) => {
-          console.log('Parsed Results:', results);
           const uniqueCategories = new Set<string>();
           results.data.forEach((row: any) => {
-            console.log('Row:', row);
             if (row['Tags']) {
               uniqueCategories.add(row['Tags']);
             }
           });
           setUniqueCategories(Array.from(uniqueCategories));
-          console.log('Unique Categories:', Array.from(uniqueCategories));
         },
         error: (error: any) => {
           console.error('Error parsing CSV file:', error);

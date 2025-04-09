@@ -149,7 +149,7 @@ exports.reportCard = async (req, res) => {
 exports.updateCard = async (req, res) => {
   try {
     const { id } = req.params;
-    const { subject, text, imageUrl, caption } = req.body;
+    const { subject, text, imageUrl, caption, tags } = req.body;
     const userEmail = req.user.email; // Authenticated user's email
 
     // 1) Match the card by elementId + check ownership
@@ -160,17 +160,19 @@ exports.updateCard = async (req, res) => {
       SET c.subject = $subject,
           c.text = $text,
           c.imageUrl = $imageUrl,
-          c.caption = $caption
+          c.caption = $caption,
+          c.tags = $tags
       RETURN c
       `,
       {
+        
         id,
         author: userEmail,
         subject,
         text,
         imageUrl,
         caption,
-        
+        tags
       }
     );
 
@@ -181,6 +183,7 @@ exports.updateCard = async (req, res) => {
 
     // 3) Return the updated card
     const updatedCardProps = result.records[0].get('c').properties;
+    
     return res.status(200).json(updatedCardProps);
 
   } catch (error) {
