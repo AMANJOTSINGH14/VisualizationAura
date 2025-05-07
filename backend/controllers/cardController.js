@@ -1,19 +1,25 @@
+// backend/controllers/cardController.js
+
+const axios = require('axios');
+const sharp = require('sharp');
+const tf = require('@tensorflow/tfjs');
+const mobilenet = require('@tensorflow-models/mobilenet');
+let modelPromise = mobilenet.load();
 const { session } = require('../config/neo4j');
 
-exports.getAllCards = async (req, res) => {
-  console.log("📥 Fetching all cards...");
+ exports.getAllCards = async (req, res) => {
   try {
-    const result = await session.run(`MATCH (c:Card) RETURN elementId(c) AS id, c`);
-    
+    const result = await session.run(
+      `MATCH (c:Card) RETURN elementId(c) AS id, c`
+    );
     const cards = result.records.map(record => {
       let card = record.get('c').properties;
-      card._id = record.get('id'); // Attach unique ID
+      card._id = record.get('id');
       return card;
     });
-
     res.status(200).json(cards);
   } catch (error) {
-    console.error("❌ Error fetching cards:", error);
+    console.error(" Error fetching cards:", error);
     res.status(500).json({ error: 'Failed to fetch cards' });
   }
 };
@@ -21,18 +27,48 @@ exports.getAllCards = async (req, res) => {
 exports.createCard = async (req, res) => {
   const { subject, text, imageUrl, caption, tags } = req.body;
   try {
+    const model = await modelPromise;
+
+    let imgBuf;
+    if (imageUrl.startsWith('data:')) {
+      const base64Data = imageUrl.split(',')[1];
+      imgBuf = Buffer.from(base64Data, 'base64');
+    } else {
+      const resp = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+      imgBuf = Buffer.from(resp.data);
+    }
+
+    const { data: rgb, info } = await sharp(imgBuf)
+      .resize(224, 224)
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    const inputT = tf.tensor3d(rgb, [info.height, info.width, info.channels], 'int32');
+    const embT = model.infer(inputT, true);
+    const rawEmb = await embT.array();
+    inputT.dispose(); embT.dispose();
+
+    const embedding = Array.isArray(rawEmb) ? rawEmb.flat(Infinity) : rawEmb;
+
     const result = await session.run(
-      `CREATE (c:Card {subject: $subject, text: $text, author: $author, imageUrl: $imageUrl, caption: $caption, tags: $tags}) 
-       RETURN elementId(c) AS id, c`,
-      { subject, text, author: req.user.email, imageUrl, caption, tags }
+      `CREATE (c:Card {
+         subject:   $subject,
+         text:      $text,
+         author:    $author,
+         imageUrl:  $imageUrl,
+         caption:   $caption,
+         tags:      $tags,
+         embedding: $embedding
+       }) RETURN elementId(c) AS id, c`,
+      { subject, text, author: req.user.email, imageUrl, caption, tags: tags || [], embedding }
     );
 
     const newCard = result.records[0].get('c').properties;
-    newCard._id = result.records[0].get('id'); // Attach unique ID
-
+    newCard._id = result.records[0].get('id');
     res.status(201).json(newCard);
   } catch (error) {
-    console.error("❌ Error creating card:", error);
+    console.error("Error creating card:", error);
     res.status(500).json({ error: 'Failed to create card' });
   }
 };
@@ -40,19 +76,16 @@ exports.createCard = async (req, res) => {
 exports.deleteCard = async (req, res) => {
   try {
     const { id } = req.params;
-
     const result = await session.run(
       `MATCH (c:Card) WHERE elementId(c) = $id AND c.author = $author DELETE c`,
       { id, author: req.user.email }
     );
-
     if (result.summary.counters.updates().nodesDeleted === 0) {
       return res.status(404).json({ error: 'Card not found or unauthorized' });
     }
-
-    res.status(200).json({ message: '✅ Card deleted successfully' });
+    res.status(200).json({ message: 'Card deleted successfully' });
   } catch (error) {
-    console.error("❌ Error deleting card:", error);
+    console.error(" Error deleting card:", error);
     res.status(500).json({ error: 'Failed to delete card' });
   }
 };
@@ -60,45 +93,34 @@ exports.deleteCard = async (req, res) => {
 exports.duplicateCard = async (req, res) => {
   try {
     const { id } = req.params;
-    const userEmail = req.user.email; 
-
-    // Find the original card
-    const originalResult = await session.run(
-      `MATCH (c:Card) WHERE elementId(c) = $id RETURN c`,
-      { id }
+    const userEmail = req.user.email;
+    const origRes = await session.run(
+      `MATCH (c:Card) WHERE elementId(c) = $id RETURN c`, { id }
     );
+    if (!origRes.records.length) return res.status(404).json({ error: 'Card not found' });
+    const orig = origRes.records[0].get('c').properties;
+    if (orig.author !== userEmail) return res.status(403).json({ error: 'Unauthorized' });
 
-    if (originalResult.records.length === 0) {
-      return res.status(404).json({ error: 'Card not found' });
-    }
+    const embedding = Array.isArray(orig.embedding) ? orig.embedding : [];
 
-    const originalCard = originalResult.records[0].get('c').properties;
-
-    // 🔥 Check if the authenticated user is the owner
-    if (originalCard.author !== userEmail) {
-      return res.status(403).json({ error: 'Unauthorized: Only the owner can duplicate this card' });
-    }
-
-    // Create a duplicate
     const result = await session.run(
-      `CREATE (c:Card {subject: $subject, text: $text, author: $author, imageUrl: $imageUrl, caption: $caption, tags: $tags}) 
-       RETURN elementId(c) AS id, c`,
-      {
-        subject: originalCard.subject + " (Copy)",
-        text: originalCard.text,
-        author: originalCard.author, // Keep the original author
-        imageUrl: originalCard.imageUrl,
-        caption: originalCard.caption,
-        tags: originalCard.tags,
-      }
+      `CREATE (c:Card {
+         subject:   $subject,
+         text:      $text,
+         author:    $author,
+         imageUrl:  $imageUrl,
+         caption:   $caption,
+         tags:      $tags,
+         embedding: $embedding
+       }) RETURN elementId(c) AS id, c`,
+      { subject: orig.subject + ' (Copy)', text: orig.text, author: orig.author, imageUrl: orig.imageUrl,
+        caption: orig.caption, tags: orig.tags || [], embedding }
     );
-
     const newCard = result.records[0].get('c').properties;
     newCard._id = result.records[0].get('id');
-
     res.status(201).json(newCard);
   } catch (error) {
-    console.error("❌ Error duplicating card:", error);
+    console.error(" Error duplicating card:", error);
     res.status(500).json({ error: 'Failed to duplicate card' });
   }
 };
@@ -107,42 +129,24 @@ exports.reportCard = async (req, res) => {
   try {
     const { id } = req.params;
     const { email, reportType, additionalInfo } = req.body;
-
-    console.log("Received data:", { email, reportType, additionalInfo });
-    if (!id || !email || !reportType || !additionalInfo) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!email || !reportType || !additionalInfo) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
-
-    // Check if the card node exists
-    const cardResult = await session.run(
-      `MATCH (c:Card) WHERE elementId(c) = $id RETURN c`,
-      { id }
+    const cardRes = await session.run(
+      `MATCH (c:Card) WHERE elementId(c) = $id RETURN c`, { id }
     );
+    if (!cardRes.records.length) return res.status(404).json({ error: 'Card not found' });
 
-    if (cardResult.records.length === 0) {
-      return res.status(404).json({ error: "Card not found" });
-    }
-
-    // 🔥 Convert your fields to a single JSON string
-    const reportData = JSON.stringify({
-      email,
-      reportType,
-      additionalInfo,
-      timestamp: Date.now()
-    });
-
-    // 🔥 Store an array of strings (JSON) in c.reports
+    const reportData = JSON.stringify({ email, reportType, additionalInfo, timestamp: Date.now() });
     await session.run(
-      `MATCH (c:Card)
-       WHERE elementId(c) = $id
-       SET c.reports = COALESCE(c.reports, []) + [$reportData]`,
+      `MATCH (c:Card) WHERE elementId(c) = $id
+       SET c.reports = coalesce(c.reports, []) + $reportData`,
       { id, reportData }
     );
-
-    res.status(200).json({ message: `✅ Report added to Card ${id}` });
+    res.status(200).json({ message: ` Report added to Card ${id}` });
   } catch (error) {
-    console.error("❌ Error reporting card:", error);
-    res.status(500).json({ error: "Failed to report card" });
+    console.error(" Error reporting card:", error);
+    res.status(500).json({ error: 'Failed to report card' });
   }
 };
 
@@ -150,45 +154,51 @@ exports.updateCard = async (req, res) => {
   try {
     const { id } = req.params;
     const { subject, text, imageUrl, caption, tags } = req.body;
-    const userEmail = req.user.email; // Authenticated user's email
+    const userEmail = req.user.email;
 
-    // 1) Match the card by elementId + check ownership
-    const result = await session.run(
-      `
-      MATCH (c:Card)
-      WHERE elementId(c) = $id AND c.author = $author
-      SET c.subject = $subject,
-          c.text = $text,
-          c.imageUrl = $imageUrl,
-          c.caption = $caption,
-          c.tags = $tags
-      RETURN c
-      `,
-      {
-        
-        id,
-        author: userEmail,
-        subject,
-        text,
-        imageUrl,
-        caption,
-        tags
+    let embedding = null;
+    if (imageUrl) {
+      let imgBuf;
+      if (imageUrl.startsWith('data:')) {
+        const base64Data = imageUrl.split(',')[1];
+        imgBuf = Buffer.from(base64Data, 'base64');
+      } else {
+        const resp = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+        imgBuf = Buffer.from(resp.data);
       }
-    );
-
-    // 2) If no card matched (either not found or not owned by user)
-    if (result.records.length === 0) {
-      return res.status(404).json({ error: 'Card not found or unauthorized' });
+      const { data: rgb, info } = await sharp(imgBuf)
+        .resize(224,224)
+        .removeAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject:true });
+      const inputT = tf.tensor3d(rgb, [info.height, info.width, info.channels], 'int32');
+      const embT = (await modelPromise).infer(inputT, true);
+      const rawEmb = await embT.array();
+      inputT.dispose(); embT.dispose();
+      embedding = Array.isArray(rawEmb) ? rawEmb.flat(Infinity) : rawEmb;
     }
 
-    // 3) Return the updated card
-    const updatedCardProps = result.records[0].get('c').properties;
-    
-    return res.status(200).json(updatedCardProps);
+    const sets = [
+      'c.subject  = $subject',
+      'c.text     = $text',
+      'c.imageUrl = $imageUrl',
+      'c.caption  = $caption',
+      'c.tags     = $tags'
+    ];
+    if (embedding) sets.push('c.embedding = $embedding');
 
+    const result = await session.run(
+      `MATCH (c:Card) WHERE elementId(c) = $id AND c.author = $author
+       SET ${sets.join(',\n           ')}
+       RETURN c`,
+      { id, author: userEmail, subject, text, imageUrl, caption, tags, embedding }
+    );
+    if (!result.records.length) {
+      return res.status(404).json({ error: 'Card not found or unauthorized' });
+    }
+    res.status(200).json(result.records[0].get('c').properties);
   } catch (error) {
-    console.error("❌ Error updating card:", error);
-    return res.status(500).json({ error: 'Failed to update card' });
+    console.error("Error updating card:", error);
+    res.status(500).json({ error: 'Failed to update card' });
   }
 };
-

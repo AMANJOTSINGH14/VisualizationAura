@@ -54,7 +54,7 @@ const HeaderRight = styled.div`
   flex: 1;
 `;
 
-const LogoIcon = styled(FaChartBar)`
+const LogoIcon = styled(FaChartBar as any)`
   margin-right: 12px;
   font-size: 28px;
 `;
@@ -80,7 +80,7 @@ const SearchInput = styled.input`
   }
 `;
 
-const SearchIcon = styled(FaSearch)`
+const SearchIcon = styled(FaSearch as any)`
   color: #999;
   margin-right: 8px;
 `;
