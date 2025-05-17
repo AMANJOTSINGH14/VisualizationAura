@@ -12,7 +12,7 @@ import { getIdToken } from 'firebase/auth';
 import { isConstructorDeclaration } from 'typescript';
 const BASE_URL =
   process.env.NODE_ENV === 'production'
-    ? 'https://visualization-8p47.onrender.com' 
+    ? 'https://visualizationaura.onrender.com' 
     : 'http://localhost:5000'; 
 
 const API_LOGIN = `${BASE_URL}/api/user/login`;

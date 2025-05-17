@@ -12,7 +12,7 @@ const cardRoutes = require('./routes/cardRoutes');
 const app = express();
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://visualization-gray.vercel.app'],
+  origin: ['http://localhost:3000', 'https://visualization-aura.vercel.app'],
   methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
   allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization',
 }));
