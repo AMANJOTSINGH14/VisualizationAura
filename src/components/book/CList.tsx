@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { FaSearch, FaChartBar } from "react-icons/fa";
@@ -461,6 +461,20 @@ const CardCaption = styled.p`
   margin-top: 4px;
   margin-bottom: 8px;
 `;
+const TagSearch = styled.input`
+  width: 100%;
+  box-sizing: border-box;
+  margin: 10px 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #e3e3e3;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  &:focus {
+    border-color: #8a2be2;
+    box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.1);
+  }
+`;
 
 const CList: React.FC<CListProps> = ({
   cards,
@@ -479,12 +493,19 @@ const CList: React.FC<CListProps> = ({
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   const [dropdownVisible, setDropdownVisible] = useState<string | null>(null);
   const [signup, setSignup] = useState<string | null>(null);
+
+
   const [tag, setTags] = useState<Tag[]>(
     tags.map((tagName, index) => ({
       id: (index + 1).toString(),
       name: tagName,
     }))
   );
+ const [tagSearch, setTagSearch] = useState('');
+ const filteredTags = useMemo(
+   () => tag.filter((t) => t.name.toLowerCase().includes(tagSearch.toLowerCase())),
+   [tag, tagSearch]
+ );
 
   useEffect(() => {
     setInternalCards(cards);
@@ -759,11 +780,17 @@ const CList: React.FC<CListProps> = ({
                 </CountItem>
               </CountDisplay>
               <PopularTag>Popular:</PopularTag>
+              <TagSearch
+    type="text"
+    placeholder="Search tags..."
+    value={tagSearch}
+    onChange={(e) => setTagSearch(e.target.value)}
+  />
             </SidebarHeader>
             <Droppable droppableId="tagList">
               {(provided) => (
                 <TagList {...provided.droppableProps} ref={provided.innerRef}>
-                  {tag.map((tag, index) => (
+                  {filteredTags.map((tag, index) => (
                     <Draggable key={tag.id} draggableId={tag.id} index={index}>
                       {(provided) => (
                         <TagItem

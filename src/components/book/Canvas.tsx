@@ -79,6 +79,23 @@ const UploadConfig = styled.button`
   justify-content: center;
   align-items: center;
 `;
+const UploadConfig2 = styled.button`
+  position: fixed;
+  bottom: 20px;
+  right: 160px; /* move further to the left than the first one */
+  background-color: #4CAF50;  /* different color */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 interface CardData {
   _id?: string;
   author: string;
@@ -222,7 +239,15 @@ const Canvas = () => {
    await dispatch(removeCard(cardId));
    dispatch(getAllCards())
   };
-  
+  const handleSecondFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (file) {
+    // put your second functionality here
+    console.log("Second CSV file selected:", file.name);
+    // parse it differently or upload somewhere else...
+  }
+};
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -265,6 +290,17 @@ const Canvas = () => {
       />
       )}
       <AddCardButton onClick={handleModalOpen}>➕</AddCardButton>
+<UploadConfig2>
+  <label htmlFor="second-file-upload">📄</label> {/* choose a different emoji/icon */}
+  <input
+    id="second-file-upload"
+    type="file"
+    accept=".csv"
+    onChange={handleSecondFileUpload}
+    style={{ display: 'none' }}
+  />
+</UploadConfig2>
+
       <UploadConfig>
         <label htmlFor="file-upload">📁</label>
         <input
