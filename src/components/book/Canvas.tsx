@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import CardComponent from './Card';
 import CList from './CList';
 import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 import ReportModal from './ReportModel';
 import { useSelector, useDispatch } from 'react-redux'
 import { getAllCards, addCard, editCard, removeCard,duplicateExistingCard } from '../../store/userSlice';
@@ -240,11 +241,49 @@ const Canvas = () => {
    dispatch(getAllCards())
   };
   const handleSecondFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-  const file = event.target.files?.[0];
-  if (file) {
-    // put your second functionality here
-    console.log("Second CSV file selected:", file.name);
-    // parse it differently or upload somewhere else...
+ const file = event.target.files?.[0];
+  if (!file) return;
+
+  const ext = file.name.split('.').pop()?.toLowerCase();
+
+  if (ext === 'csv') {
+    // CSV handling
+    Papa.parse(file, {
+      header: true,
+      complete: (results: any) => {
+        const uniqueCategories = new Set<string>();
+        results.data.forEach((row: any) => {
+          if (row['Chart Types']) {
+            uniqueCategories.add(row['Chart Types']);
+          }
+        });
+        setUniqueCategories(Array.from(uniqueCategories));
+      },
+      error: (error: any) => {
+        console.error('Error parsing CSV file:', error);
+      },
+    });
+  } else if (ext === 'xlsx' || ext === 'xls') {
+    // Excel handling
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = e.target?.result;
+      const workbook = XLSX.read(data, { type: 'binary' });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(sheet); // header row automatically used as keys
+
+      const uniqueCategories = new Set<string>();
+      jsonData.forEach((row: any) => {
+        if (row['Chart Types']) {
+          uniqueCategories.add(row['Chart Types']);
+        }
+      });
+      setUniqueCategories(Array.from(uniqueCategories));
+    };
+    reader.readAsBinaryString(file);
+  } else {
+    console.error('Unsupported file type');
   }
 };
 
@@ -295,7 +334,7 @@ const Canvas = () => {
   <input
     id="second-file-upload"
     type="file"
-    accept=".csv"
+    accept=".csv,.xlsx,.xls"
     onChange={handleSecondFileUpload}
     style={{ display: 'none' }}
   />
