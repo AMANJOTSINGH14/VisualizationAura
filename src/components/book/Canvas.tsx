@@ -330,7 +330,7 @@ const Canvas = () => {
       )}
       <AddCardButton onClick={handleModalOpen}>➕</AddCardButton>
 <UploadConfig2>
-  <label htmlFor="second-file-upload">📄</label> {/* choose a different emoji/icon */}
+  <label htmlFor="second-file-upload">📄</label> 
   <input
     id="second-file-upload"
     type="file"

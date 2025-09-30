@@ -1,0 +1,75 @@
+Serial No,Stage,Categories,Tags,Explanation
+55,Perception,Visual Illusion,3D,Perspective distortions.
+56,Perception,Visual Illusion,Area Encoding,"Using area to represent data, which can lead to underestimation due to non-linear perception."
+43,Plotting,Inconsistency,Changing Scale,"Altering the scale midway, causing misleading impressions."
+48,Plotting,Chaotic Canvas,Cluttering,"Overloading the chart with too many data points, making it unreadable."
+32,Visualization Design,Color Mess,Color Blind Unfriendly,Choosing colors that are difficult to distinguish for color-blind readers.
+25,Visualization Design,Choice of Chart,Confusing Chart Type,"Mixing elements from different chart types, making it hard for readers to understand."
+49,Plotting,Chaotic Canvas,Confusing Legend,Providing a legend that is hard to understand or decode.
+65,Interpretation,False Linkage,Correlation Not Causation,"Implying causality from correlation, misleading readers about the relationship between variables."
+21,Visualization Design,Choice of Axis,Data of Different Magnitudes,"Plotting data series with vastly different magnitudes together, leading to one series dominating the visualization."
+6,Input,Lie with Statistics,Discretized Continuous Variable,"Converting continuous data into categories unnecessarily, often leading to exaggerated differences at category boundaries."
+60,Perception,Visual Illusion,Distractive Value Labels,"Value labels that dominate the data representation, misleading the reader."
+16,Visualization Design,Choice of Axis,Dual Axis,"Using two different scales on the same chart, which can be confusing if not properly explained."
+3,Input,Garbage-In,Dubious Data,"Using data from sources that are questionable or unreliable, leading to doubt about the data's authenticity."
+20,Visualization Design,Choice of Axis,Extended Axis,Extending the axis beyond the relevant data range to create a misleading impression of stability or change.
+71,Interpretation,Hidden Information,Hidden Distribution,"Failing to show the underlying distribution, leading to misinterpretation of the data."
+74,Interpretation,Hidden Information,Hidden Population Size,Omitting population size when it is relevant to understanding the data's significance.
+73,Interpretation,Hidden Information,Hidden Uncertainty," Not representing data uncertainty, leading to overconfidence in the results."
+54,Plotting,Chaotic Canvas,Illegible Text,Poor readability.
+13,Input,Lie with Statistics,Inappropriate Aggregation Granularity,"Using an inappropriate level of detail, which can lead to misleading conclusions about the data."
+62,Perception,Visual Illusion,Inappropriate Aspect Ratio,Distorting data with incorrect aspect ratios.
+17,Visualization Design,Choice of Axis,Inappropriate Axis Range,Choosing an axis range that misrepresents the data's true variability.
+8,Input,Lie with Statistics,Inappropriate Item Order,Tag for visualizations that hide patterns or show misleading trends by putting the items in an arbitrary order
+9,Input,Lie with Statistics,Inappropriate Metric,"Selecting a metric or threshold that supports a specific, often misleading narrative."
+12,Input,Lie with Statistics,Inappropriate Use of Accumulation,"Aggregating data in a way that hides recent trends, such as showing cumulative values to obscure a declining trend."
+28,Visualization Design,Choice of Chart,Inappropriate Use of Bar Chart,Using bar charts for data types that do not suit this visualization.
+23,Visualization Design,Choice of Chart,Inappropriate Use of Line Chart,Using a line chart for categorical data or swapping axes inappropriately.
+24,Visualization Design,Choice of Chart,Inappropriate Use of Pie Chart,Using pie charts where no part-to-whole relationship exists.
+29,Visualization Design,Choice of Chart,Inappropriate Use of Scatterplot,Using scatterplots for data that do not show meaningful relationships between variables.
+59,Perception,Visual Illusion,Inappropriate Use of Smoothing,"Interpolating data points where none exist, creating false data points."
+27,Visualization Design,Choice of Chart,Inappropriate Use of Stacked,"Stacking too many layers, making the chart incomprehensible."
+42,Plotting,Inconsistency,Inconsistent Binning Size,Varying bin sizes to manipulate statistical outcomes.
+45,Plotting,Inconsistency,Inconsistent Grouping," Grouping some items inconsistently, which can distort the perceived data distribution."
+41,Plotting,Inconsistency,Inconsistent Tick Intervals,Using arbitrary tick intervals that create false patterns.
+46,Plotting,Inconsistency,Inconsistent Tick Labels,"Using non-uniform labels, which disrupts the reader's understanding."
+47,Plotting,Inconsistency,Inconsistent Value Labels," Labeling values inconsistently, leading to confusion."
+31,Visualization Design,Color Mess,Indistinguishable Colors,"Using similar colors for different categories, causing confusion."
+57,Perception,Visual Illusion,Ineffective Color Scheme,"Applying inappropriate color schemes, such as rainbow colors for sequential data, which distort the data's meaning."
+64,Interpretation,False Linkage,Invalid Comparison,"Comparing incomparable items, misleading readers by suggesting false equivalence."
+18,Visualization Design,Choice of Axis,Inverted Axis,Misleading axis adjustments.
+22,Visualization Design,Choice of Axis,Linear Scale on Exponential Data,"Using a linear scale for data that grows exponentially, leading to underrepresentation of the growth."
+19,Visualization Design,Choice of Axis,Log Scale,"Applying a logarithmic scale inappropriately, which can mislead readers about the data's growth pattern."
+61,Perception,Visual Illusion,Map Projection Distortion,"Using map projections that distort area size, leading to incorrect comparisons."
+53,Plotting,Chaotic Canvas,Misalignment,"Poor alignment of items or labels, hindering readability and comparison."
+68,Interpretation,Power of Words,Misleading Annotation,Providing annotations that mislead rather than clarify the data.
+67,Interpretation,Power of Words,Misleading Claim,Making a claim supported by misinterpreted or manipulated data.
+69,Interpretation,Power of Words,Misleading Title,"Using a title that does not match the data presented, leading to false interpretations."
+70,Interpretation,Power of Words,Misleading Value Labels,Value labels that misrepresent the true data proportions.
+40,Plotting,Inconsistency,Misrepresentation,Drawing data values disproportionately or not to scale.
+51,Plotting,Chaotic Canvas,Missing Abbreviation,"Failing to use abbreviations, making the text unnecessarily long."
+37,Plotting,Incomplete Chart,Missing Axis,"Omitting the axis, making it impossible to gauge values accurately."
+38,Plotting,Incomplete Chart,Missing Axis Ticks,"Leaving out tick marks, leading to difficulties in reading specific values."
+34,Plotting,Incomplete Chart,Missing Axis Title,"Omitting titles for the axes, making their meaning ambiguous."
+35,Plotting,Incomplete Chart,Missing Legend,"Failing to include a legend, leaving visual marks without explanation."
+7,Input,Lie with Statistics,Missing Normalization,"Failing to adjust data for meaningful comparison, such as not using per capita values in population comparisons."
+33,Plotting,Incomplete Chart,Missing Title,"Omitting the chart title, leaving readers unclear about the visualization's subject."
+39,Plotting,Incomplete Chart,Missing Units," Omitting units of measurement, causing confusion about the scale."
+36,Plotting,Incomplete Chart,Missing Value Labels," Not labeling values, making it hard to understand the data points."
+26,Visualization Design,Choice of Chart,Misusing Circular Layout,Inappropriate use of curved bars or lines.
+4,Input,Garbage-In,Non Sequitur,"Visuals that do not logically follow from the data, often used for decoration rather than meaningful information."
+1,Input,Garbage-In,Not Data,"Visualizations drawn to illustrate concepts rather than actual data, which may be mistaken as data-driven by readers."
+72,Interpretation,Hidden Information,Overplotting,"Placing multiple data points in the same position, hiding some of them."
+30,Visualization Design,Color Mess,Overusing Colors,Overwhelming the reader with too many colors.
+66,Interpretation,False Linkage,Pattern Seeking,"Finding patterns in historical data that may not predict future events, leading to false conclusions."
+58,Perception,Visual Illusion,Pictorial Area Encoding,"Similar to area encoding, but using pictorial representations, which also mislead due to non-linear perception."
+50,Plotting,Chaotic Canvas,Plotting Error,"Errors in drawing the chart, resulting from software bugs or other issues."
+52,Plotting,Chaotic Canvas,Plotting Out of Chart,"Plotting data points beyond the axis range, making them invisible or misleading."
+10,Input,Lie with Statistics,Questionable Prediction,"Making future projections without a clear basis, leading to potentially misleading conclusions."
+2,Input,Garbage-In,Selective Data,Cherry-picking data to support a specific narrative.
+63,Perception,Visual Illusion,Sine Illusion,Optical illusions that distort the perception of data patterns.
+5,Input,Garbage-In,Too Few Data Points,"Creating a misleading impression by connecting insufficient data points, such as forming a line chart from just two points."
+11,Input,Lie with Statistics,Trend Line on Random Data,"Drawing a regression line through weakly correlated data, suggesting a trend where there is none."
+15,Visualization Design,Choice of Axis,Truncated Axis,Cutting off parts of the axis to exaggerate or understate trends.
+14,Input,Lie with Statistics,Two-Way Normalization,"Applying normalization to a two-way table arbitrarily, distorting the interpretation of the data."
+44,Plotting,Inconsistency,Violating Color Convention,"Using colors contrary to standard conventions, leading to misinterpretation."
