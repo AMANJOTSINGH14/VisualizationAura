@@ -240,82 +240,14 @@ const Canvas = () => {
    await dispatch(removeCard(cardId));
    dispatch(getAllCards())
   };
-//   const handleSecondFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-//  const file = event.target.files?.[0];
-//   if (!file) return;
 
-//   const ext = file.name.split('.').pop()?.toLowerCase();
 
-//   if (ext === 'csv') {
-//     // CSV handling
-//     Papa.parse(file, {
-//       header: true,
-//       complete: (results: any) => {
-//         const uniqueCategories = new Set<string>();
-//         results.data.forEach((row: any) => {
-//           if (row['Chart Types']) {
-//             uniqueCategories.add(row['Chart Types']);
-//           }
-//         });
-//         setUniqueCategories(Array.from(uniqueCategories));
-//       },
-//       error: (error: any) => {
-//         console.error('Error parsing CSV file:', error);
-//       },
-//     });
-//   } else if (ext === 'xlsx' || ext === 'xls') {
-//     // Excel handling
-//     const reader = new FileReader();
-//     reader.onload = (e) => {
-//       const data = e.target?.result;
-//       const workbook = XLSX.read(data, { type: 'binary' });
-//       const sheetName = workbook.SheetNames[0];
-//       const sheet = workbook.Sheets[sheetName];
-//       const jsonData = XLSX.utils.sheet_to_json(sheet); // header row automatically used as keys
-
-//       const uniqueCategories = new Set<string>();
-//       jsonData.forEach((row: any) => {
-//         if (row['Chart Types']) {
-//           uniqueCategories.add(row['Chart Types']);
-//         }
-//       });
-//       setUniqueCategories(Array.from(uniqueCategories));
-//     };
-//     reader.readAsBinaryString(file);
-//   } else {
-//     console.error('Unsupported file type');
-//   }
-// };
-
-//   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-//     const file = event.target.files?.[0];
-//     if (file) {
-//       Papa.parse(file, {
-//         header: true,
-//         complete: (results: any) => {
-//           const uniqueCategories = new Set<string>();
-//           results.data.forEach((row: any) => {
-//             if (row['Tags']) {
-//               uniqueCategories.add(row['Tags']);
-//             }
-//           });
-//           setUniqueCategories(Array.from(uniqueCategories));
-//         },
-//         error: (error: any) => {
-//           console.error('Error parsing CSV file:', error);
-//         },
-//       });
-//     }
-//   };
-
-// --- Raw GitHub URLs (note: use raw.githubusercontent.com, and URL-encode spaces) ---
 const TAGS_CSV_RAW =
   "https://raw.githubusercontent.com/AMANJOTSINGH14/VisualizationAura/main/files/List%20of%20Tags.xlsx%20-%20Tag-MisinformedbyVisualization.csv";
 
 const CHART_TYPES_XLSX_RAW =
   "https://raw.githubusercontent.com/AMANJOTSINGH14/VisualizationAura/main/files/chart_types.xlsx";
 
-// Robust fetch helper
 async function fetchAsText(url: string) {
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status} ${res.statusText}`);
@@ -328,7 +260,6 @@ async function fetchAsArrayBuffer(url: string) {
   return res.arrayBuffer();
 }
 
-// 1) Fetch and parse the CSV from GitHub -> build unique 'Tags'
 const fetchTagsFromGitHub = async () => {
   try {
     const csvText = await fetchAsText(TAGS_CSV_RAW);
@@ -355,7 +286,6 @@ const fetchTagsFromGitHub = async () => {
   }
 };
 
-// 2) Fetch and parse the XLSX from GitHub -> build unique 'Chart Types'
 const fetchChartTypesFromGitHub = async () => {
   try {
     const ab = await fetchAsArrayBuffer(CHART_TYPES_XLSX_RAW);
@@ -363,7 +293,7 @@ const fetchChartTypesFromGitHub = async () => {
 
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
-    const jsonData: any[] = XLSX.utils.sheet_to_json(sheet); // first row = headers
+    const jsonData: any[] = XLSX.utils.sheet_to_json(sheet); 
 
     const uniq = new Set<string>();
     jsonData.forEach((row: any) => {
@@ -398,27 +328,7 @@ const fetchChartTypesFromGitHub = async () => {
       />
       )}
       <AddCardButton onClick={handleModalOpen}>➕</AddCardButton>
-{/* <UploadConfig2>
-  <label htmlFor="second-file-upload">📄</label> 
-  <input
-    id="second-file-upload"
-    type="file"
-    accept=".csv,.xlsx,.xls"
-    onChange={handleSecondFileUpload}
-    style={{ display: 'none' }}
-  />
-</UploadConfig2>
 
-      <UploadConfig>
-        <label htmlFor="file-upload">📁</label>
-        <input
-          id="file-upload"
-          type="file"
-          accept=".csv"
-          onChange={handleFileUpload}
-          style={{ display: 'none' }}
-        />
-      </UploadConfig> */}
       <UploadConfig2 onClick={fetchChartTypesFromGitHub} title="Load chart types from GitHub">
   📄
 </UploadConfig2>
